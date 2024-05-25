@@ -24,6 +24,7 @@ public class SistemaBibliotecaMejia {
 	private JSONObject bibliotecaJSON;
 	private JSONArray librosJSON;
 	private JSONArray librosNuevos;
+	private Object objectParser;
 
 	public SistemaBibliotecaMejia(int nCompra) {
 		// INICIALIZACIÓN ATRIBUTOS POR PARAMTERO
@@ -42,6 +43,8 @@ public class SistemaBibliotecaMejia {
 
 		// INICIALIZACION ATRIBUTOS PARA LÓGICA
 		existeLibro = false;
+		// INICIALIZACIÓN ARCHIVOS
+		NOMBRE_ARCHIVO = "libros.json";
 		// INICIALIZACION JSON
 		libroJSON = new JSONObject();
 		parser = new JSONParser();
@@ -49,8 +52,7 @@ public class SistemaBibliotecaMejia {
 		bibliotecaJSON = new JSONObject();
 		librosNuevos = new JSONArray();
 		librosAnteriores = new JSONArray();
-		// INICIALIZACIÓN ARCHIVOS
-		NOMBRE_ARCHIVO = "libros.json";
+		objectParser = null;
 	}
 
 	public void agregarLibro() {
@@ -120,6 +122,7 @@ public class SistemaBibliotecaMejia {
 			libroJSON.put("Costo alquilado dia (USD)", libros[i].getCostoAlquilar());
 			librosNuevos.add(libroJSON);
 		}
+
 		// GUARDA EL ARRAY DE LIBROS EN OBJETO JSON
 		bibliotecaJSON.put("libros", librosNuevos);
 		// CONTROL ERROR ARCHIVOS
@@ -128,16 +131,7 @@ public class SistemaBibliotecaMejia {
 			file.write(libroJSON.toJSONString());
 			// LIMPIAR BUFFER ARCHIVO
 			file.flush();
-
-			// MOSTRAR ARCHIVOS GUARDADOS
-			System.out.print(nLibros + " libros guardados con éxito: ");
-			for (int i = 0; i < libros.length; i++) {
-				System.out.print(libros[i].getNombreLibro());
-				if (i + 1 != nLibros) {
-					System.out.print(", ");
-				}
-			}
-			System.out.println(" en " + NOMBRE_ARCHIVO);
+			leerLibrosJSON();
 		} catch (Exception e) {
 			// IMPRIME ERRORES SI NO GUARDA EL ARCHIVO
 			e.printStackTrace();
@@ -145,16 +139,37 @@ public class SistemaBibliotecaMejia {
 		}
 	}
 
-	public JSONArray leerLibrosJSON() {
+	public void leerLibrosJSON() {
 		librosJSON = new JSONArray();
 		try (FileReader reader = new FileReader(NOMBRE_ARCHIVO)) {
 			parser = new JSONParser();
-			Object obj = parser.parse(reader);
-			librosJSON = (JSONArray) obj;
+			objectParser = parser.parse(reader);// aqui es el error
+			if (objectParser instanceof JSONObject) {
+				librosJSON.add((JSONObject) objectParser);
+			} else if (objectParser instanceof JSONArray) {
+				// CONVERSIÓN JSON A ARRAY
+				librosJSON = (JSONArray) objectParser;
+			}
+			// MOSTRAR UBICACION JSON
+			System.out.println("Libros guardados con éxito");
+			System.out.println("------------------------------");
+			// IMPRIMIR DATOS
+			System.out.println("DATOS");
+			for (Object libroObj : librosJSON) {
+				JSONObject libroJSON = (JSONObject) libroObj;
+				System.out.println("ID: " + libroJSON.get("ID"));
+				System.out.println("Nombre: " + libroJSON.get("Nombre"));
+				System.out.println("Editorial: " + libroJSON.get("Editorial"));
+				System.out.println("Año de edición: " + libroJSON.get("Año edicion"));
+				System.out.println("Area de estudio: " + libroJSON.get("Area estudio"));
+				System.out.println("Autor: " + libroJSON.get("Autor"));
+				System.out.println("Costo alquilado dia (USD): " + libroJSON.get("Costo alquilado dia (USD)"));
+
+			}
 		} catch (IOException | ParseException e) {
+			e.printStackTrace();
 			System.out.println("Archivo no encontrado/vacío: " + NOMBRE_ARCHIVO);
 		}
-		return librosJSON;
 	}
 
 	public void pedirLibro() {
