@@ -44,7 +44,7 @@ public class SistemaBibliotecaMejia {
 		// INICIALIZACION ATRIBUTOS PARA LÓGICA
 		existeLibro = false;
 		// INICIALIZACIÓN ARCHIVOS
-		NOMBRE_ARCHIVO = "libros.json";
+		NOMBRE_ARCHIVO = "librosBibliotecaaxa.json";
 		// INICIALIZACION JSON
 		libroJSON = new JSONObject();
 		parser = new JSONParser();
@@ -106,10 +106,11 @@ public class SistemaBibliotecaMejia {
 
 	public void guardarLibrosJSON() {
 		// TRAER DATOS GUARDADOS DEL JSON
-		/*
-		 * librosAnteriores = leerLibrosJSON(); if (librosAnteriores != null) {
-		 * librosNuevos.addAll(librosAnteriores); }
-		 */
+		librosAnteriores = obtenerLibrosAnteriores();
+
+		if (librosAnteriores != null) {
+			bibliotecaJSON.addAll(librosAnteriores);
+		}
 
 		// GUARDAR NUEVOS DATOS EN JSON
 		for (int i = 0; i < libros.length; i++) {
@@ -124,18 +125,18 @@ public class SistemaBibliotecaMejia {
 			// GUARDA EL ARRAY DE LIBROS EN ARRAYS JSON
 			bibliotecaJSON.add(libroJSON);
 		}
-		// CONTROL ERROR ARCHIVOS
+		// CONTROL ARCHIVOS
 		try (FileWriter file = new FileWriter(NOMBRE_ARCHIVO)) {
 			// ESCRITURA JSON
 			file.write(bibliotecaJSON.toJSONString());
 			// LIMPIAR BUFFER ARCHIVO
 			file.flush();
 			leerLibrosJSON();
-		} catch (Exception e) {
+		} catch (Exception e) { //
 			// IMPRIME ERRORES SI NO GUARDA EL ARCHIVO
-			e.printStackTrace();
-			System.out.println("El sistema no ha podido guardar los libros");
+			System.out.println("El archivo no existe, se creara uno nuevo");
 		}
+		bibliotecaJSON = new JSONArray();
 	}
 
 	public void leerLibrosJSON() {
@@ -143,8 +144,9 @@ public class SistemaBibliotecaMejia {
 		// MANEJO DE ERRORES SI NO ENCUENTRA .JSON
 		try (FileReader reader = new FileReader(NOMBRE_ARCHIVO)) {
 			parser = new JSONParser();
-			objectParser = parser.parse(reader);// aqui es el error
+			objectParser = parser.parse(reader);
 			if (objectParser instanceof JSONObject) {
+
 				librosJSON.add((JSONObject) objectParser);
 			} else if (objectParser instanceof JSONArray) {
 				// CONVERSIÓN JSON A ARRAY
@@ -168,9 +170,29 @@ public class SistemaBibliotecaMejia {
 			}
 		} catch (IOException | ParseException e) {
 			// IMPRIME ERROR SI NO EXISTE ARCHIVO
-			e.printStackTrace();
-			System.out.println("Archivo no encontrado/vacío: " + NOMBRE_ARCHIVO);
+			System.out.println("No hay datos anteriores en " + NOMBRE_ARCHIVO);
 		}
+	}
+
+	public JSONArray obtenerLibrosAnteriores() {
+		librosJSON = new JSONArray();
+		// MANEJO DE ERRORES SI NO ENCUENTRA .JSON
+		try (FileReader reader = new FileReader(NOMBRE_ARCHIVO)) {
+			parser = new JSONParser();
+			objectParser = parser.parse(reader);
+			if (objectParser instanceof JSONObject) {
+				// CONVERSIÓN JSON A JSON ARRAY
+				librosJSON.add((JSONObject) objectParser);
+			} else if (objectParser instanceof JSONArray) {
+				// ASIGNACIÓN DIRECTA
+				librosJSON = (JSONArray) objectParser;
+			}
+
+		} catch (IOException | ParseException e) {
+			// IMPRIME ERROR SI NO EXISTE ARCHIVO
+			System.out.println("No hay datos anteriores en " + NOMBRE_ARCHIVO + ", no se realizarán actualizaciones");
+		}
+		return librosJSON;
 	}
 
 	public void pedirLibro() {
