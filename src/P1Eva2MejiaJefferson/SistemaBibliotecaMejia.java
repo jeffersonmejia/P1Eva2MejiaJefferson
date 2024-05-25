@@ -21,7 +21,7 @@ public class SistemaBibliotecaMejia {
 	private JSONObject libroJSON;
 	private JSONArray librosAnteriores;
 	private JSONParser parser;
-	private JSONObject bibliotecaJSON;
+	private JSONArray bibliotecaJSON;
 	private JSONArray librosJSON;
 	private JSONArray librosNuevos;
 	private Object objectParser;
@@ -49,10 +49,11 @@ public class SistemaBibliotecaMejia {
 		libroJSON = new JSONObject();
 		parser = new JSONParser();
 		librosJSON = new JSONArray();
-		bibliotecaJSON = new JSONObject();
+		bibliotecaJSON = new JSONArray();
 		librosNuevos = new JSONArray();
 		librosAnteriores = new JSONArray();
 		objectParser = null;
+
 	}
 
 	public void agregarLibro() {
@@ -120,15 +121,13 @@ public class SistemaBibliotecaMejia {
 			libroJSON.put("Area estudio", libros[i].getAreaConocimiento());
 			libroJSON.put("Autor", libros[i].getAutorLibro());
 			libroJSON.put("Costo alquilado dia (USD)", libros[i].getCostoAlquilar());
-			librosNuevos.add(libroJSON);
+			// GUARDA EL ARRAY DE LIBROS EN ARRAYS JSON
+			bibliotecaJSON.add(libroJSON);
 		}
-
-		// GUARDA EL ARRAY DE LIBROS EN OBJETO JSON
-		bibliotecaJSON.put("libros", librosNuevos);
 		// CONTROL ERROR ARCHIVOS
 		try (FileWriter file = new FileWriter(NOMBRE_ARCHIVO)) {
 			// ESCRITURA JSON
-			file.write(libroJSON.toJSONString());
+			file.write(bibliotecaJSON.toJSONString());
 			// LIMPIAR BUFFER ARCHIVO
 			file.flush();
 			leerLibrosJSON();
@@ -141,6 +140,7 @@ public class SistemaBibliotecaMejia {
 
 	public void leerLibrosJSON() {
 		librosJSON = new JSONArray();
+		// MANEJO DE ERRORES SI NO ENCUENTRA .JSON
 		try (FileReader reader = new FileReader(NOMBRE_ARCHIVO)) {
 			parser = new JSONParser();
 			objectParser = parser.parse(reader);// aqui es el error
@@ -164,9 +164,10 @@ public class SistemaBibliotecaMejia {
 				System.out.println("Area de estudio: " + libroJSON.get("Area estudio"));
 				System.out.println("Autor: " + libroJSON.get("Autor"));
 				System.out.println("Costo alquilado dia (USD): " + libroJSON.get("Costo alquilado dia (USD)"));
-
+				System.out.println("------------------------------");
 			}
 		} catch (IOException | ParseException e) {
+			// IMPRIME ERROR SI NO EXISTE ARCHIVO
 			e.printStackTrace();
 			System.out.println("Archivo no encontrado/vacío: " + NOMBRE_ARCHIVO);
 		}
@@ -176,6 +177,7 @@ public class SistemaBibliotecaMejia {
 		System.out.println("------------------------------");
 		System.out.println("MENÚ > PEDIR");
 		consultarLibro();
+		// MUESTRA INFORMACIÓN DEL LIBRO SI EXISTE
 		if (existeLibro) {
 			System.out.println("------------------------------");
 			System.out.println("El libro: " + nombreLibro + " ha sido alquilado con éxito");
@@ -192,9 +194,11 @@ public class SistemaBibliotecaMejia {
 		// CONSULTA POR TECLADO
 		System.out.print("Ingresa el nombre del libro: ");
 		nombreLibro = scanner.nextLine();
+		// MUESTRA EL LIBRO SOLICITADO POR EL USUARIO
 		if (libroSolicitado.equals(nombreLibro)) {
 			System.out.println("El libro: " + nombreLibro + " devuelto con éxito, sin recargos");
 			libroSolicitado = "";
+			// EL LIBRO NO EXISTE, NO PUEDE SER DEVUELTO
 		} else {
 			System.out.println("El libro: " + nombreLibro + " no ha sido pedido por el usuario");
 		}
