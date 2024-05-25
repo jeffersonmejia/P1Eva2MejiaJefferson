@@ -44,7 +44,7 @@ public class SistemaBibliotecaMejia {
 		// INICIALIZACION ATRIBUTOS PARA LÓGICA
 		existeLibro = false;
 		// INICIALIZACIÓN ARCHIVOS
-		NOMBRE_ARCHIVO = "librosBibliotecaaxa.json";
+		NOMBRE_ARCHIVO = "libros.json";
 		// INICIALIZACION JSON
 		libroJSON = new JSONObject();
 		parser = new JSONParser();
