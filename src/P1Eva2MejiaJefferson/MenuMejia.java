@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class MenuMejia {
 
 	public static void main(String[] args) {
-		int opcion = 0, nCompra = 0;
+		int opcion = 0, nCompra = 0, OPCION_SALIR = 5;
 		Scanner scanner = new Scanner(System.in);
 		// INICIALIZACIÓN SISTEMA BIBLIOTECARIO
 		SistemaBibliotecaMejia sistema = new SistemaBibliotecaMejia(nCompra);
@@ -48,7 +48,7 @@ public class MenuMejia {
 				break;
 			}
 			}
-		} while (opcion != 5);
+		} while (opcion != OPCION_SALIR);
 		scanner.close();
 	}
 }

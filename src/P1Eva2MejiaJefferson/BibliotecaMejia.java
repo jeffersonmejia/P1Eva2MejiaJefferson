@@ -2,11 +2,11 @@ package P1Eva2MejiaJefferson;
 
 public class BibliotecaMejia {
 	// AGREGAR 3 ATRIBUTOS
-	private String nombreLibro, editorialLibro, anioLibrio, areaConocimiento, autorLibro;
-	private int nLibro;
+	private String nombreLibro, editorialLibro, areaConocimiento, autorLibro;
+	private int nLibro, anioLibrio;
 	private double costoAlquilar;
 
-	public BibliotecaMejia(String nombreLibro, String editorialLibro, String anioLibrio, String areaConocimiento,
+	public BibliotecaMejia(String nombreLibro, String editorialLibro, int anioLibrio, String areaConocimiento,
 			String autorLibro, int nLibro, double costoAlquilar) {
 		this.nombreLibro = nombreLibro;
 		this.editorialLibro = editorialLibro;
@@ -33,11 +33,11 @@ public class BibliotecaMejia {
 		this.editorialLibro = editorialLibro;
 	}
 
-	public String getAnioLibrio() {
+	public int getAnioLibrio() {
 		return anioLibrio;
 	}
 
-	public void setAnioLibrio(String anioLibrio) {
+	public void setAnioLibrio(int anioLibrio) {
 		this.anioLibrio = anioLibrio;
 	}
 

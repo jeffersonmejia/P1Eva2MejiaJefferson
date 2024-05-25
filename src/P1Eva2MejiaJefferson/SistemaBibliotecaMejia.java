@@ -1,15 +1,29 @@
 package P1Eva2MejiaJefferson;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;//PEDIDO DE DATOS POR TECLADO
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class SistemaBibliotecaMejia {
-	// MÍNIMO UN ATRIBUTO
+	// MÍNIMO AGREGAR UN ATRIBUTO
 	private BibliotecaMejia libros[];
 	private Scanner scanner;
-	private int nLibros, totalLibros, nCompra;
+	private int nLibros, nCompra, anioLibro;
 	private double costoAlquilar;
-	private String nombreLibro, editorialLibro, anioLibro, areaConocimiento, autorLibro, libroSolicitado;
-	boolean existeLibro;
+	private boolean existeLibro;
+	private String nombreLibro, editorialLibro, areaConocimiento, autorLibro, libroSolicitado, NOMBRE_ARCHIVO;
+	private JSONObject libroJSON;
+	private JSONArray librosAnteriores;
+	private JSONParser parser;
+	private JSONObject bibliotecaJSON;
+	private JSONArray librosJSON;
+	private JSONArray librosNuevos;
 
 	public SistemaBibliotecaMejia(int nCompra) {
 		// INICIALIZACIÓN ATRIBUTOS POR PARAMTERO
@@ -19,7 +33,7 @@ public class SistemaBibliotecaMejia {
 		// INICIALIZACION ATRIBUTOS
 		nombreLibro = "";
 		editorialLibro = "";
-		anioLibro = "";
+		anioLibro = 0;
 		areaConocimiento = "";
 		autorLibro = "";
 		libroSolicitado = "";
@@ -28,7 +42,15 @@ public class SistemaBibliotecaMejia {
 
 		// INICIALIZACION ATRIBUTOS PARA LÓGICA
 		existeLibro = false;
-
+		// INICIALIZACION JSON
+		libroJSON = new JSONObject();
+		parser = new JSONParser();
+		librosJSON = new JSONArray();
+		bibliotecaJSON = new JSONObject();
+		librosNuevos = new JSONArray();
+		librosAnteriores = new JSONArray();
+		// INICIALIZACIÓN ARCHIVOS
+		NOMBRE_ARCHIVO = "libros.json";
 	}
 
 	public void agregarLibro() {
@@ -38,7 +60,7 @@ public class SistemaBibliotecaMejia {
 			System.out.print("Ingresa la cantidad de libros a ingresar (1-3): ");
 			nLibros = scanner.nextInt();
 		} while (nLibros < 1 || nLibros > 3);
-		totalLibros += nLibros;
+
 		libros = new BibliotecaMejia[nLibros];
 
 		// PEDIDO DATOS POR TECLADO
@@ -55,10 +77,11 @@ public class SistemaBibliotecaMejia {
 
 			// CONTROL AÑO 4 DIGITOS
 			do {
-				System.out.print("Ingresa el año de edición (4 dígitos): ");
-				anioLibro = scanner.nextLine();
-			} while (anioLibro.length() != 4);
+				System.out.print("Ingresa el año de edición (2000-2024): ");
+				anioLibro = scanner.nextInt();
+			} while (anioLibro < 2000 || anioLibro > 2024);
 
+			scanner = new Scanner(System.in);
 			System.out.print("Ingresa el área de estudio: ");
 			areaConocimiento = scanner.nextLine();
 
@@ -75,19 +98,63 @@ public class SistemaBibliotecaMejia {
 			libros[i] = new BibliotecaMejia(nombreLibro, editorialLibro, anioLibro, areaConocimiento, autorLibro, i + 1,
 					costoAlquilar);
 		}
-		System.out.println("------------------------------");
-		if (nLibros == 1) {
-			System.out.print(nLibros + " libro ha sido ingresado con éxito: ");
-		} else if (nLibros > 0) {
-			System.out.print(nLibros + " libros han sido ingresados con éxito: ");
+		guardarLibrosJSON();
+	}
+
+	public void guardarLibrosJSON() {
+		// TRAER DATOS GUARDADOS DEL JSON
+		/*
+		 * librosAnteriores = leerLibrosJSON(); if (librosAnteriores != null) {
+		 * librosNuevos.addAll(librosAnteriores); }
+		 */
+
+		// GUARDAR NUEVOS DATOS EN JSON
+		for (int i = 0; i < libros.length; i++) {
+			libroJSON = new JSONObject();
+			libroJSON.put("ID", libros[i].getnLibro());
+			libroJSON.put("Nombre", libros[i].getNombreLibro());
+			libroJSON.put("Editorial", libros[i].getEditorialLibro());
+			libroJSON.put("Año edicion", libros[i].getAnioLibrio());
+			libroJSON.put("Area estudio", libros[i].getAreaConocimiento());
+			libroJSON.put("Autor", libros[i].getAutorLibro());
+			libroJSON.put("Costo alquilado dia (USD)", libros[i].getCostoAlquilar());
+			librosNuevos.add(libroJSON);
 		}
-		for (int i = 0; i < nLibros; i++) {
-			System.out.print(libros[i].getNombreLibro());
-			if (i + 1 != nLibros) {
-				System.out.print(", ");
+		// GUARDA EL ARRAY DE LIBROS EN OBJETO JSON
+		bibliotecaJSON.put("libros", librosNuevos);
+		// CONTROL ERROR ARCHIVOS
+		try (FileWriter file = new FileWriter(NOMBRE_ARCHIVO)) {
+			// ESCRITURA JSON
+			file.write(libroJSON.toJSONString());
+			// LIMPIAR BUFFER ARCHIVO
+			file.flush();
+
+			// MOSTRAR ARCHIVOS GUARDADOS
+			System.out.print(nLibros + " libros guardados con éxito: ");
+			for (int i = 0; i < libros.length; i++) {
+				System.out.print(libros[i].getNombreLibro());
+				if (i + 1 != nLibros) {
+					System.out.print(", ");
+				}
 			}
+			System.out.println(" en " + NOMBRE_ARCHIVO);
+		} catch (Exception e) {
+			// IMPRIME ERRORES SI NO GUARDA EL ARCHIVO
+			e.printStackTrace();
+			System.out.println("El sistema no ha podido guardar los libros");
 		}
-		System.out.println("");
+	}
+
+	public JSONArray leerLibrosJSON() {
+		librosJSON = new JSONArray();
+		try (FileReader reader = new FileReader(NOMBRE_ARCHIVO)) {
+			parser = new JSONParser();
+			Object obj = parser.parse(reader);
+			librosJSON = (JSONArray) obj;
+		} catch (IOException | ParseException e) {
+			System.out.println("Archivo no encontrado/vacío: " + NOMBRE_ARCHIVO);
+		}
+		return librosJSON;
 	}
 
 	public void pedirLibro() {
@@ -96,8 +163,10 @@ public class SistemaBibliotecaMejia {
 		consultarLibro();
 		if (existeLibro) {
 			System.out.println("------------------------------");
-			System.out.println("El libro: " + nombreLibro + " alquilado con éxito");
+			System.out.println("El libro: " + nombreLibro + " ha sido alquilado con éxito");
+			System.out.println("Compra#: " + nCompra);
 			libroSolicitado = nombreLibro;
+			nCompra++;
 		}
 	}
 
@@ -120,9 +189,9 @@ public class SistemaBibliotecaMejia {
 		if (libros != null) {
 			// LISTA LIBROS DISPONIBLES
 			System.out.print("Libros disponibles: ");
-			for (int i = 0; i < totalLibros; i++) {
+			for (int i = 0; i < libros.length; i++) {
 				System.out.print(libros[i].getNombreLibro());
-				if (i + 1 != totalLibros) {
+				if (i + 1 != libros.length) {
 					System.out.print(", ");
 				}
 			}
@@ -134,7 +203,7 @@ public class SistemaBibliotecaMejia {
 			nombreLibro = scanner.nextLine();
 			// BUSQUEDA INFORMACION LIBRO
 			System.out.println("------------------------------");
-			for (int i = 0; i < totalLibros; i++) {
+			for (int i = 0; i < libros.length; i++) {
 				if (libros[i].getNombreLibro().equals(nombreLibro)) {
 					System.out.println("ID: " + libros[i].getnLibro());
 					System.out.println("Nombre: " + libros[i].getNombreLibro());
@@ -142,10 +211,10 @@ public class SistemaBibliotecaMejia {
 					System.out.println("Año edición: " + libros[i].getAnioLibrio());
 					System.out.println("Área estudio: " + libros[i].getAreaConocimiento());
 					System.out.println("Autor: " + libros[i].getAutorLibro());
-					System.out.println("Costo alquilado hora (USD): " + libros[i].getCostoAlquilar());
+					System.out.println("Costo alquilado dia (USD): " + libros[i].getCostoAlquilar());
 					existeLibro = true;
 					// ROMPE EL CICLO CUANDO ENCUENTRE EL LIBRO
-					i = totalLibros;
+					i = libros.length;
 				} else {
 					// NO EXISTE EL LIBRO
 					existeLibro = false;
