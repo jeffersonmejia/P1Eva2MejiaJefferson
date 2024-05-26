@@ -13,12 +13,13 @@ public class MenuMejia {
 		do {
 			System.out.println("------------------------------");
 			System.out.println("BIENVENIDO: SISTEMA BIBLIOTECARIO");
-			System.out.println("1. Agregar");
-			System.out.println("2. Pedir");
-			System.out.println("3. Devolver");
-			System.out.println("4. Consultar");
-			System.out.println("5. Salir");
-			System.out.print("Selecciona una opcion (1-5): ");
+			System.out.println("1. Registrar ");
+			System.out.println("2. Pedir ");
+			System.out.println("3. Devolver ");
+			System.out.println("4. Consultar ");
+			;
+			System.out.println(OPCION_SALIR + ". Salir");
+			System.out.print("Selecciona una opcion (1-" + OPCION_SALIR + "): ");
 			opcion = scanner.nextInt();
 
 			// MENÚ DE OPCIONES
