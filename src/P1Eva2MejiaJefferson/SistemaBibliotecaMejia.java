@@ -106,7 +106,7 @@ public class SistemaBibliotecaMejia {
 		guardarLibrosJSON();
 	}
 
-	public void guardarLibrosJSON() {
+	private void guardarLibrosJSON() {
 		// TRAER DATOS GUARDADOS DEL JSON
 		librosAnteriores = obtenerLibrosAnteriores();
 
@@ -182,7 +182,7 @@ public class SistemaBibliotecaMejia {
 		}
 	}
 
-	public JSONArray obtenerLibrosAnteriores() {
+	private JSONArray obtenerLibrosAnteriores() {
 		librosJSON = new JSONArray();
 		// MANEJO DE ERRORES SI NO ENCUENTRA .JSON
 		try (FileReader reader = new FileReader(NOMBRE_ARCHIVO)) {
@@ -239,7 +239,7 @@ public class SistemaBibliotecaMejia {
 		esConsultaNombre = false;
 	}
 
-	public void verCompras() {
+	private void verCompras() {
 		System.out.println("------------------------------");
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
 			System.out.println("PEDIDOS");
@@ -257,7 +257,7 @@ public class SistemaBibliotecaMejia {
 		System.out.println("------------------------------");
 	}
 
-	public boolean buscarNCompra(int nCompra) {
+	private boolean buscarNCompra(int nCompra) {
 		// BUSCA LIBRO POR NUMERO DE COMPRA
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
 			while ((lineaLecturaCsv = lectorCsv.readLine()) != null) {
@@ -273,7 +273,7 @@ public class SistemaBibliotecaMejia {
 		return false;
 	}
 
-	public boolean buscarLibro() {
+	private boolean buscarLibro() {
 		// PIDE NOMBRE LIBRO
 		System.out.print("Ingresa el nombre del libro: ");
 		nombreLibro = scanner.nextLine();
@@ -298,24 +298,6 @@ public class SistemaBibliotecaMejia {
 		return false;
 	}
 
-	public boolean buscarLibroCompra(String nombreLibro) {
-		// BUSCA LIBRO POR ID COMPRA
-		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
-			// LEE .CSV
-			while ((lineaLecturaCsv = lectorCsv.readLine()) != null) {
-				datosCsv = lineaLecturaCsv.split(",");
-				if (datosCsv.length > 1 && datosCsv[1].trim().equalsIgnoreCase(nombreLibro)) {
-					return true;
-				}
-			}
-			// MANEJO ERROR SI NO EXISTE .CSV
-		} catch (IOException e) {
-			System.out.println("No se ha podido leer el archivo " + NOMBRE_ARCHIVO_CSV);
-			e.printStackTrace();
-		}
-		return false;
-	}
-
 	public void devolverLibro() {
 		scanner = new Scanner(System.in);
 		System.out.println("------------------------------");
@@ -334,7 +316,7 @@ public class SistemaBibliotecaMejia {
 		}
 	}
 
-	public void eliminarCompra(int nCompraEliminar) {
+	private void eliminarCompra(int nCompraEliminar) {
 		libroEliminado = false;
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
 			contenidoCsv = new StringBuilder();
