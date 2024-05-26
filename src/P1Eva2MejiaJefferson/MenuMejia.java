@@ -9,7 +9,6 @@ public class MenuMejia {
 		Scanner scanner = new Scanner(System.in);
 		// INICIALIZACIÓN SISTEMA BIBLIOTECARIO
 		SistemaBibliotecaMejia sistema = new SistemaBibliotecaMejia(nCompra);
-
 		do {
 			System.out.println("------------------------------");
 			System.out.println("BIENVENIDO: SISTEMA BIBLIOTECARIO");
@@ -21,7 +20,6 @@ public class MenuMejia {
 			System.out.println(OPCION_SALIR + ". Salir");
 			System.out.print("Selecciona una opcion (1-" + OPCION_SALIR + "): ");
 			opcion = scanner.nextInt();
-
 			// MENÚ DE OPCIONES
 			switch (opcion) {
 			case 1: {

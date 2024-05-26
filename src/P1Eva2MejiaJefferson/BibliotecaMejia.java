@@ -14,7 +14,6 @@ public class BibliotecaMejia {
 		this.anioLibrio = anioLibrio;
 		this.areaConocimiento = areaConocimiento;
 		this.autorLibro = autorLibro;
-
 		this.costoAlquilar = costoAlquilar;
 	}
 
