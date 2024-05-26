@@ -16,14 +16,15 @@ public class SistemaBibliotecaMejia {
 	private Scanner scanner;
 	private int nLibros, nCompra, anioLibro;
 	private double costoAlquilar;
-	private boolean existeLibro;
-	private String nombreLibro, editorialLibro, areaConocimiento, autorLibro, libroSolicitado, NOMBRE_ARCHIVO;
+	private boolean existeLibro, esJsonVacio, esConsultaNombre;
+	private String nombreLibro, editorialLibro, areaConocimiento, autorLibro, libroSolicitado, NOMBRE_ARCHIVO, idLibro;
 	private JSONObject libroJSON;
 	private JSONArray librosAnteriores;
 	private JSONParser parser;
 	private JSONArray bibliotecaJSON;
 	private JSONArray librosJSON;
-	private JSONArray librosNuevos;
+	private JSONArray librosActuales;
+
 	private Object objectParser;
 
 	public SistemaBibliotecaMejia(int nCompra) {
@@ -40,6 +41,8 @@ public class SistemaBibliotecaMejia {
 		libroSolicitado = "";
 		nLibros = 0;
 		costoAlquilar = 0;
+		esJsonVacio = true;
+		esConsultaNombre = false;
 
 		// INICIALIZACION ATRIBUTOS PARA LÓGICA
 		existeLibro = false;
@@ -50,8 +53,8 @@ public class SistemaBibliotecaMejia {
 		parser = new JSONParser();
 		librosJSON = new JSONArray();
 		bibliotecaJSON = new JSONArray();
-		librosNuevos = new JSONArray();
 		librosAnteriores = new JSONArray();
+		librosActuales = new JSONArray();
 		objectParser = null;
 
 	}
@@ -97,8 +100,9 @@ public class SistemaBibliotecaMejia {
 				costoAlquilar = scanner.nextDouble();
 			} while (costoAlquilar < 10 || costoAlquilar > 50);
 
+			idLibro = (i + 1) + "_" + editorialLibro.toUpperCase();
 			// CREACIÓN NUEVO OBJETO LIBRO
-			libros[i] = new BibliotecaMejia(nombreLibro, editorialLibro, anioLibro, areaConocimiento, autorLibro, i + 1,
+			libros[i] = new BibliotecaMejia(idLibro, nombreLibro, editorialLibro, anioLibro, areaConocimiento, autorLibro,
 					costoAlquilar);
 		}
 		guardarLibrosJSON();
@@ -115,7 +119,7 @@ public class SistemaBibliotecaMejia {
 		// GUARDAR NUEVOS DATOS EN JSON
 		for (int i = 0; i < libros.length; i++) {
 			libroJSON = new JSONObject();
-			libroJSON.put("ID", libros[i].getnLibro());
+			libroJSON.put("ID", libros[i].getIdLibro());
 			libroJSON.put("Nombre", libros[i].getNombreLibro());
 			libroJSON.put("Editorial", libros[i].getEditorialLibro());
 			libroJSON.put("Año edicion", libros[i].getAnioLibrio());
@@ -131,7 +135,8 @@ public class SistemaBibliotecaMejia {
 			file.write(bibliotecaJSON.toJSONString());
 			// LIMPIAR BUFFER ARCHIVO
 			file.flush();
-			leerLibrosJSON();
+			// MOSTRAR UBICACION JSON
+			System.out.println(nLibros + " libro/s se guardó con éxito");
 		} catch (Exception e) { //
 			// IMPRIME ERRORES SI NO GUARDA EL ARCHIVO
 			System.out.println("El archivo no existe, se creara uno nuevo");
@@ -152,25 +157,36 @@ public class SistemaBibliotecaMejia {
 				// CONVERSIÓN JSON A ARRAY
 				librosJSON = (JSONArray) objectParser;
 			}
-			// MOSTRAR UBICACION JSON
-			System.out.println("Libros guardados con éxito");
 			System.out.println("------------------------------");
 			// IMPRIMIR DATOS
 			System.out.println("DATOS");
+			if (esConsultaNombre) {
+				System.out.print("Libros disponibles: ");
+			}
 			for (Object libroObj : librosJSON) {
 				JSONObject libroJSON = (JSONObject) libroObj;
-				System.out.println("ID: " + libroJSON.get("ID"));
-				System.out.println("Nombre: " + libroJSON.get("Nombre"));
-				System.out.println("Editorial: " + libroJSON.get("Editorial"));
-				System.out.println("Año de edición: " + libroJSON.get("Año edicion"));
-				System.out.println("Area de estudio: " + libroJSON.get("Area estudio"));
-				System.out.println("Autor: " + libroJSON.get("Autor"));
-				System.out.println("Costo alquilado dia (USD): " + libroJSON.get("Costo alquilado dia (USD)"));
-				System.out.println("------------------------------");
+				if (esConsultaNombre) {
+					System.out.print(libroJSON.get("Nombre") + ", ");
+				} else {
+					System.out.println("ID: " + libroJSON.get("ID"));
+					System.out.println("Nombre: " + libroJSON.get("Nombre"));
+					System.out.println("Editorial: " + libroJSON.get("Editorial"));
+					System.out.println("Año de edición: " + libroJSON.get("Año edicion"));
+					System.out.println("Area de estudio: " + libroJSON.get("Area estudio"));
+					System.out.println("Autor: " + libroJSON.get("Autor"));
+					System.out.println("Costo alquilado dia (USD): " + libroJSON.get("Costo alquilado dia (USD)"));
+					System.out.println("------------------------------");
+				}
+
+				esJsonVacio = false;
+			}
+			if (esConsultaNombre) {
+				System.out.println();
 			}
 		} catch (IOException | ParseException e) {
 			// IMPRIME ERROR SI NO EXISTE ARCHIVO
 			System.out.println("No hay datos anteriores en " + NOMBRE_ARCHIVO);
+			esJsonVacio = true;
 		}
 	}
 
@@ -198,15 +214,38 @@ public class SistemaBibliotecaMejia {
 	public void pedirLibro() {
 		System.out.println("------------------------------");
 		System.out.println("MENÚ > PEDIR");
-		consultarLibro();
-		// MUESTRA INFORMACIÓN DEL LIBRO SI EXISTE
+		esConsultaNombre = true;
+		leerLibrosJSON();
+		existeLibro = buscarLibro();
 		if (existeLibro) {
-			System.out.println("------------------------------");
-			System.out.println("El libro: " + nombreLibro + " ha sido alquilado con éxito");
-			System.out.println("Compra#: " + nCompra);
+			System.out.println("Libro solicitado con éxito");
 			libroSolicitado = nombreLibro;
-			nCompra++;
+		} else {
+			System.out.println("El libro no existe");
 		}
+		esConsultaNombre = false;
+	}
+
+	public boolean buscarLibro() {
+		System.out.print("Ingresa el nombre del libro: ");
+		nombreLibro = scanner.nextLine();
+		librosJSON = obtenerLibrosAnteriores();
+		for (Object libroObj : librosJSON) {
+			JSONObject libroJSON = (JSONObject) libroObj;
+			if (libroJSON.get("Nombre").equals(nombreLibro)) {
+				System.out.println("------------------------------");
+				System.out.println("ID: " + libroJSON.get("ID"));
+				System.out.println("Nombre: " + libroJSON.get("Nombre"));
+				System.out.println("Editorial: " + libroJSON.get("Editorial"));
+				System.out.println("Año de edición: " + libroJSON.get("Año edicion"));
+				System.out.println("Area de estudio: " + libroJSON.get("Area estudio"));
+				System.out.println("Autor: " + libroJSON.get("Autor"));
+				System.out.println("Costo alquilado dia (USD): " + libroJSON.get("Costo alquilado dia (USD)"));
+				System.out.println("------------------------------");
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void devolverLibro() {
@@ -227,49 +266,8 @@ public class SistemaBibliotecaMejia {
 	}
 
 	public void consultarLibro() {
-		if (libros != null) {
-			// LISTA LIBROS DISPONIBLES
-			System.out.print("Libros disponibles: ");
-			for (int i = 0; i < libros.length; i++) {
-				System.out.print(libros[i].getNombreLibro());
-				if (i + 1 != libros.length) {
-					System.out.print(", ");
-				}
-			}
-			System.out.println("");
+		leerLibrosJSON();
 
-			scanner = new Scanner(System.in);
-			// CONSULTA POR TECLADO
-			System.out.print("Ingresa el nombre del libro: ");
-			nombreLibro = scanner.nextLine();
-			// BUSQUEDA INFORMACION LIBRO
-			System.out.println("------------------------------");
-			for (int i = 0; i < libros.length; i++) {
-				if (libros[i].getNombreLibro().equals(nombreLibro)) {
-					System.out.println("ID: " + libros[i].getnLibro());
-					System.out.println("Nombre: " + libros[i].getNombreLibro());
-					System.out.println("Editorial: " + libros[i].getEditorialLibro());
-					System.out.println("Año edición: " + libros[i].getAnioLibrio());
-					System.out.println("Área estudio: " + libros[i].getAreaConocimiento());
-					System.out.println("Autor: " + libros[i].getAutorLibro());
-					System.out.println("Costo alquilado dia (USD): " + libros[i].getCostoAlquilar());
-					existeLibro = true;
-					// ROMPE EL CICLO CUANDO ENCUENTRE EL LIBRO
-					i = libros.length;
-				} else {
-					// NO EXISTE EL LIBRO
-					existeLibro = false;
-				}
-			}
-			if (!existeLibro) {
-				// AVISO QUE N EXITE LIBRO
-				System.out.println("El libro ingresado no existe");
-			}
-			// NO EXISTEN LIBROS
-		} else {
-			System.out.println("------------------------------");
-			System.out.println("No hay libros disponibles");
-		}
 	}
 
 	// SALIR DEL MENÚ
