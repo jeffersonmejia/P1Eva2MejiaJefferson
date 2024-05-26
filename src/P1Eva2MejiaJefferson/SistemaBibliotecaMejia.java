@@ -158,13 +158,13 @@ public class SistemaBibliotecaMejia {
 			System.out.println("------------------------------");
 			System.out.println("DATOS");
 			if (esConsultaNombre) {
-				System.out.print("Libros disponibles: ");
+				System.out.println("Libros disponibles: ");
 			}
 			// IMPRIMIR DATOS
 			for (Object libroObj : librosJSON) {
 				libroJSON = (JSONObject) libroObj;
 				if (esConsultaNombre) {
-					System.out.print(libroJSON.get("Nombre") + ", ");
+					System.out.println("- " + libroJSON.get("Nombre"));
 				} else {
 					System.out.println("ID: " + libroJSON.get("ID"));
 					System.out.println("Nombre: " + libroJSON.get("Nombre"));
@@ -175,10 +175,6 @@ public class SistemaBibliotecaMejia {
 					System.out.println("Costo alquilado dia (USD): " + libroJSON.get("Costo alquilado dia (USD)"));
 					System.out.println("------------------------------");
 				}
-			}
-			// AGREGA SALTO DE LÍNEA
-			if (esConsultaNombre) {
-				System.out.println();
 			}
 		} catch (IOException | ParseException e) {
 			// IMPRIME ERROR SI NO EXISTE ARCHIVO
