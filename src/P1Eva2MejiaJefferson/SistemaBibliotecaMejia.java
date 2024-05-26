@@ -16,14 +16,13 @@ public class SistemaBibliotecaMejia {
 	private Scanner scanner;
 	private int nLibros, nCompra, anioLibro;
 	private double costoAlquilar;
-	private boolean existeLibro, esJsonVacio, esConsultaNombre;
+	private boolean existeLibro, esConsultaNombre;
 	private String nombreLibro, editorialLibro, areaConocimiento, autorLibro, libroSolicitado, NOMBRE_ARCHIVO, idLibro;
 	private JSONObject libroJSON;
 	private JSONArray librosAnteriores;
 	private JSONParser parser;
 	private JSONArray bibliotecaJSON;
 	private JSONArray librosJSON;
-	private JSONArray librosActuales;
 
 	private Object objectParser;
 
@@ -41,7 +40,7 @@ public class SistemaBibliotecaMejia {
 		libroSolicitado = "";
 		nLibros = 0;
 		costoAlquilar = 0;
-		esJsonVacio = true;
+
 		esConsultaNombre = false;
 
 		// INICIALIZACION ATRIBUTOS PARA LÓGICA
@@ -54,7 +53,6 @@ public class SistemaBibliotecaMejia {
 		librosJSON = new JSONArray();
 		bibliotecaJSON = new JSONArray();
 		librosAnteriores = new JSONArray();
-		librosActuales = new JSONArray();
 		objectParser = null;
 
 	}
@@ -178,7 +176,6 @@ public class SistemaBibliotecaMejia {
 					System.out.println("------------------------------");
 				}
 
-				esJsonVacio = false;
 			}
 			if (esConsultaNombre) {
 				System.out.println();
@@ -186,7 +183,7 @@ public class SistemaBibliotecaMejia {
 		} catch (IOException | ParseException e) {
 			// IMPRIME ERROR SI NO EXISTE ARCHIVO
 			System.out.println("No hay datos anteriores en " + NOMBRE_ARCHIVO);
-			esJsonVacio = true;
+
 		}
 	}
 
@@ -218,8 +215,9 @@ public class SistemaBibliotecaMejia {
 		leerLibrosJSON();
 		existeLibro = buscarLibro();
 		if (existeLibro) {
-			System.out.println("Libro solicitado con éxito");
+			System.out.println("Libro solicitado con éxito, compra#" + nCompra);
 			libroSolicitado = nombreLibro;
+			nCompra++;
 		} else {
 			System.out.println("El libro no existe");
 		}
@@ -257,11 +255,11 @@ public class SistemaBibliotecaMejia {
 		nombreLibro = scanner.nextLine();
 		// MUESTRA EL LIBRO SOLICITADO POR EL USUARIO
 		if (libroSolicitado.equals(nombreLibro)) {
-			System.out.println("El libro: " + nombreLibro + " devuelto con éxito, sin recargos");
+			System.out.println("El libro " + nombreLibro + "ha sido devuelto con éxito, sin recargos");
 			libroSolicitado = "";
 			// EL LIBRO NO EXISTE, NO PUEDE SER DEVUELTO
 		} else {
-			System.out.println("El libro: " + nombreLibro + " no ha sido pedido por el usuario");
+			System.out.println("El libro " + nombreLibro + " no ha sido pedido por el usuario");
 		}
 	}
 
