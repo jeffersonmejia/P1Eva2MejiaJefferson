@@ -1,17 +1,17 @@
 package P1Eva2MejiaJefferson;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.BufferedReader;//LECTOR BUFFER 
+import java.io.BufferedWriter;//ESCRITOR BUFFER
+import java.io.File;//CREACION DE ARCHIVOS
+import java.io.FileReader;//LECTURA ARCHIVOS
+import java.io.FileWriter;//ESCRITURA ARCHIVOS
+import java.io.IOException;//MANEJO EXCEPCIONES ENTRADA/SALIDA
 import java.util.Scanner;//PEDIDO DE DATOS POR TECLADO
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.simple.JSONArray;//CREAR ARRAY JSON
+import org.json.simple.JSONObject;//CREAR OBJETO JSON
+import org.json.simple.parser.JSONParser;//CONVIERTE JSON-ARRAY/OBJETO
+import org.json.simple.parser.ParseException;//MANEJO ERRORES JSON
 
 public class SistemaBibliotecaMejia {
 	// MÍNIMO AGREGAR UN ATRIBUTO
@@ -22,7 +22,7 @@ public class SistemaBibliotecaMejia {
 	private double costoAlquilar;
 	private boolean existeLibro, esConsultaNombre, libroEliminado, primeraLineaCsv;
 	private String nombreLibro, editorialLibro, areaConocimiento, autorLibro, libroSolicitado, NOMBRE_ARCHIVO,
-			NOMBRE_ARCHIVO_CSV, idLibro, lineaLecturaCsv;
+			NOMBRE_ARCHIVO_CSV, NOMBRE_ARCHIVO_TXT, idLibro, lineaLecturaCsv;
 	private JSONObject libroJSON;
 	private JSONArray librosAnteriores;
 	private JSONParser parser;
@@ -30,7 +30,7 @@ public class SistemaBibliotecaMejia {
 	private JSONArray librosJSON;
 	private BufferedWriter escritorCsv;
 	private StringBuilder contenidoCsv;
-
+	private FileWriter escritorTxt;
 	private Object objectParser;
 
 	public SistemaBibliotecaMejia(int nCompra) {
@@ -48,20 +48,21 @@ public class SistemaBibliotecaMejia {
 		nLibros = 0;
 		costoAlquilar = 0;
 		esConsultaNombre = false;
-		// INICIALIZACION ATRIBUTOS PARA LÓGICA
 		existeLibro = false;
-		// INICIALIZACIÓN ARCHIVOS
+		// INICIALIZACIÓN RUTA ARCHIVOS
 		NOMBRE_ARCHIVO = "libros.json";
 		NOMBRE_ARCHIVO_CSV = "compras.csv";
-		// INICIALIZACION JSON
+		NOMBRE_ARCHIVO_TXT = "devoluciones.txt";
+		// INICIALIZACION .JSON
 		libroJSON = new JSONObject();
 		parser = new JSONParser();
 		librosJSON = new JSONArray();
 		bibliotecaJSON = new JSONArray();
 		librosAnteriores = new JSONArray();
 		libroEliminado = false;
+		// INICIALIZACION .CSV
 		contenidoCsv = new StringBuilder();
-		boolean primeraLineaCsv = true;
+		primeraLineaCsv = true;
 	}
 
 	public void agregarLibro() {
@@ -71,9 +72,7 @@ public class SistemaBibliotecaMejia {
 			System.out.print("Ingresa la cantidad de libros a ingresar (1-3): ");
 			nLibros = scanner.nextInt();
 		} while (nLibros < 1 || nLibros > 3);
-
 		libros = new BibliotecaMejia[nLibros];
-
 		// PEDIDO DATOS POR TECLADO
 		for (int i = 0; i < nLibros; i++) {
 			scanner = new Scanner(System.in);
@@ -82,29 +81,23 @@ public class SistemaBibliotecaMejia {
 			}
 			System.out.print("Ingresa el nombre: ");
 			nombreLibro = scanner.nextLine();
-
 			System.out.print("Ingresa el editorial: ");
 			editorialLibro = scanner.nextLine();
-
 			// CONTROL AÑO 4 DIGITOS
 			do {
 				System.out.print("Ingresa el año de edición (2000-2024): ");
 				anioLibro = scanner.nextInt();
 			} while (anioLibro < 2000 || anioLibro > 2024);
-
 			scanner = new Scanner(System.in);
 			System.out.print("Ingresa el área de estudio: ");
 			areaConocimiento = scanner.nextLine();
-
 			System.out.print("Ingresa el autor: ");
 			autorLibro = scanner.nextLine();
-
 			// CONTROL ALQULADO 10-50
 			do {
 				System.out.print("Ingresa el costo de alquilado por día $(10-50): ");
 				costoAlquilar = scanner.nextDouble();
 			} while (costoAlquilar < 10 || costoAlquilar > 50);
-
 			idLibro = (i + 1) + "_" + editorialLibro.toUpperCase();
 			// CREACIÓN NUEVO OBJETO LIBRO
 			libros[i] = new BibliotecaMejia(idLibro, nombreLibro, editorialLibro, anioLibro, areaConocimiento, autorLibro,
@@ -157,18 +150,17 @@ public class SistemaBibliotecaMejia {
 			parser = new JSONParser();
 			objectParser = parser.parse(reader);
 			if (objectParser instanceof JSONObject) {
-
 				librosJSON.add((JSONObject) objectParser);
 			} else if (objectParser instanceof JSONArray) {
 				// CONVERSIÓN JSON A ARRAY
 				librosJSON = (JSONArray) objectParser;
 			}
 			System.out.println("------------------------------");
-			// IMPRIMIR DATOS
 			System.out.println("DATOS");
 			if (esConsultaNombre) {
 				System.out.print("Libros disponibles: ");
 			}
+			// IMPRIMIR DATOS
 			for (Object libroObj : librosJSON) {
 				libroJSON = (JSONObject) libroObj;
 				if (esConsultaNombre) {
@@ -218,7 +210,7 @@ public class SistemaBibliotecaMejia {
 		System.out.println("------------------------------");
 		System.out.println("MENÚ > PEDIR");
 		esConsultaNombre = true;
-
+		// MUESTRA LIBROS DISPONIBLES
 		consultarLibro();
 		existeLibro = buscarLibro();
 		if (existeLibro) {
@@ -239,7 +231,6 @@ public class SistemaBibliotecaMejia {
 				escritorCsv.newLine();
 				// CIERRA CSV
 				escritorCsv.close();
-
 				// AVISA AL USUARIO QUE SE GUARDÓ LA COMPRA
 				System.out.println("Libro solicitado con éxito - compra#" + nCompra);
 				libroSolicitado = nombreLibro;
@@ -255,12 +246,14 @@ public class SistemaBibliotecaMejia {
 	public void verCompras() {
 		System.out.println("------------------------------");
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
-			String linea;
 			System.out.println("PEDIDOS");
 			System.out.println("------------------------------");
-			while ((linea = lectorCsv.readLine()) != null) {
-				System.out.println(linea);
+			// LEE .CSV LINEA A LINEA
+			while ((lineaLecturaCsv = lectorCsv.readLine()) != null) {
+				System.out.println(lineaLecturaCsv);
+
 			}
+			// MANEJO ERRORES
 		} catch (IOException e) {
 			System.out.println("No se ha podido leer el archivo " + NOMBRE_ARCHIVO_CSV);
 			e.printStackTrace();
@@ -269,6 +262,7 @@ public class SistemaBibliotecaMejia {
 	}
 
 	public boolean buscarNCompra(int nCompra) {
+		// BUSCA LIBRO POR NUMERO DE COMPRA
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
 			while ((lineaLecturaCsv = lectorCsv.readLine()) != null) {
 				datosCsv = lineaLecturaCsv.split(",");
@@ -284,11 +278,14 @@ public class SistemaBibliotecaMejia {
 	}
 
 	public boolean buscarLibro() {
+		// PIDE NOMBRE LIBRO
 		System.out.print("Ingresa el nombre del libro: ");
 		nombreLibro = scanner.nextLine();
 		librosJSON = obtenerLibrosAnteriores();
+		// VERIFICA EXISTENCIA LIBRO
 		for (Object libroObj : librosJSON) {
 			JSONObject libroJSON = (JSONObject) libroObj;
+			// SI EXISTE MUESTRA DATOS
 			if (libroJSON.get("Nombre").equals(nombreLibro)) {
 				System.out.println("------------------------------");
 				System.out.println("ID: " + libroJSON.get("ID"));
@@ -306,13 +303,16 @@ public class SistemaBibliotecaMejia {
 	}
 
 	public boolean buscarLibroCompra(String nombreLibro) {
+		// BUSCA LIBRO POR ID COMPRA
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
+			// LEE .CSV
 			while ((lineaLecturaCsv = lectorCsv.readLine()) != null) {
 				datosCsv = lineaLecturaCsv.split(",");
 				if (datosCsv.length > 1 && datosCsv[1].trim().equalsIgnoreCase(nombreLibro)) {
 					return true;
 				}
 			}
+			// MANEJO ERROR SI NO EXISTE .CSV
 		} catch (IOException e) {
 			System.out.println("No se ha podido leer el archivo " + NOMBRE_ARCHIVO_CSV);
 			e.printStackTrace();
@@ -325,17 +325,15 @@ public class SistemaBibliotecaMejia {
 		System.out.println("------------------------------");
 		System.out.println("MENÚ > DEVOLVER");
 		verCompras();
-
 		// CONSULTA POR TECLADO
 		System.out.print("Ingresa el numero de compra: ");
 		nCompraBuscar = scanner.nextInt();
 		scanner = new Scanner(System.in);
-
 		// MUESTRA EL LIBRO SOLICITADO POR EL USUARIO
 		if (buscarNCompra(nCompraBuscar)) {
 			eliminarCompra(nCompraBuscar);
-			// EL LIBRO NO EXISTE, NO PUEDE SER DEVUELTO
 		} else {
+			// EL LIBRO NO EXISTE, NO PUEDE SER DEVUELTO
 			System.out.println("El ID " + nCompraBuscar + " de la compra no existe");
 		}
 	}
@@ -345,14 +343,16 @@ public class SistemaBibliotecaMejia {
 		try (BufferedReader lectorCsv = new BufferedReader(new FileReader(NOMBRE_ARCHIVO_CSV))) {
 			contenidoCsv = new StringBuilder();
 
-			primeraLineaCsv = true; // Bandera para identificar la primera línea del archivo
+			// IDENTIFICA PRIMERA LINEA .CSV
+			primeraLineaCsv = true;
 			while ((lineaLecturaCsv = lectorCsv.readLine()) != null) {
 				if (primeraLineaCsv) {
-					// Si es la primera línea, la ignoramos
+					// IGNORA PRIMERA LINEA (CABEZERA)
 					contenidoCsv.append(lineaLecturaCsv).append("\n");
 					primeraLineaCsv = false;
 					continue;
 				}
+				// SEPARA DATOS .CSV
 				datosCsv = lineaLecturaCsv.split(",");
 				if (datosCsv.length > 0 && Integer.parseInt(datosCsv[0].trim()) != nCompraEliminar) {
 					contenidoCsv.append(lineaLecturaCsv).append("\n");
@@ -361,24 +361,38 @@ public class SistemaBibliotecaMejia {
 					libroEliminado = true;
 				}
 			}
-
+			// ACTUALIZA .CSV, ELIMINA COMPRA
 			if (libroEliminado) {
 				try (BufferedWriter escritorCsv = new BufferedWriter(new FileWriter(NOMBRE_ARCHIVO_CSV))) {
 					escritorCsv.write(contenidoCsv.toString());
-					System.out.println("Libro " + nombreLibro + " - ID " + nCompraEliminar + " ha sido devuelto sin recargos");
+					// GUARDADO DEVOLUCIONES .TXT
+					try {
+						escritorTxt = new FileWriter(NOMBRE_ARCHIVO_TXT, true);
+						escritorTxt.write("------------------------------\n");
+						escritorTxt.write("ID: " + nCompraEliminar + "\n");
+						escritorTxt.write("Libro: " + nombreLibro + "\n");
+						escritorTxt.close();
+						System.out.println("Libro " + nombreLibro + " - ID " + nCompraEliminar + " ha sido devuelto sin recargos");
+						// MANEJO ERROR .TXT
+					} catch (IOException e) {
+						System.out.println("Error: no se ha guardado el registro de devolución ");
+					}
+					// MANEJO ERROR COMPRA ELIMINADA .CSV
 				} catch (IOException e) {
 					System.out.println("Error al escribir en el archivo " + NOMBRE_ARCHIVO_CSV);
 				}
+				// COMPRA NO EXISTE
 			} else {
 				System.out.println("No se encontró la compra con el número " + nCompraEliminar);
 			}
+			// EL ARCHIVO NO EXISTE
 		} catch (IOException e) {
 			System.out.println("Error al leer el archivo " + NOMBRE_ARCHIVO_CSV);
 		}
 	}
 
-	// SALIR DEL MENÚ
 	public void salir() {
+		// SALIR DEL MENÚ
 		System.out.println("Saliste del sistema, vuelve pronto");
 	}
 }
